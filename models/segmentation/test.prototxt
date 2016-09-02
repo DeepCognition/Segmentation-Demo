@@ -7,7 +7,7 @@
 # which makes it easier to exactly align responses at different layers.
 #
 
-name: "${NET_ID}"
+name: "segmentation_demo"
 
 layer {
   name: "data"
@@ -26,8 +26,8 @@ layer {
     mean_value: 122.675
   }
   image_data_param {
-    root_folder: "${DATA_ROOT}"
-    source: "${EXP}/list/${TEST_SET}.txt"
+    root_folder: "/home/ubuntu/segment/"
+    source:"/tmp/segment/list.txt"
     batch_size: 1
     label_type: NONE
   }
@@ -346,6 +346,7 @@ layer {
   dropout_param {
     dropout_ratio: 0.5
   }
+  include {phase: TRAIN}
 }
 layer {
   name: "fc7_1"
@@ -371,14 +372,15 @@ layer {
   dropout_param {
     dropout_ratio: 0.5
   }
+  include {phase: TRAIN}
 }
 layer {
-  name: "fc8_${EXP}_1"
+  name: "fc8_voc12_1"
   type: "Convolution"
   bottom: "fc7_1"
-  top: "fc8_${EXP}_1"
+  top: "fc8_voc12_1"
   convolution_param {
-    num_output: ${NUM_LABELS}
+    num_output: 21
     kernel_size: 1
   }
 }
@@ -410,6 +412,7 @@ layer {
   dropout_param {
     dropout_ratio: 0.5
   }
+  include {phase: TRAIN}
 }
 layer {
   name: "fc7_2"
@@ -435,14 +438,15 @@ layer {
   dropout_param {
     dropout_ratio: 0.5
   }
+  include {phase: TRAIN}
 }
 layer {
-  name: "fc8_${EXP}_2"
+  name: "fc8_voc12_2"
   type: "Convolution"
   bottom: "fc7_2"
-  top: "fc8_${EXP}_2"
+  top: "fc8_voc12_2"
   convolution_param {
-    num_output: ${NUM_LABELS}
+    num_output: 21
     kernel_size: 1
   }
 }
@@ -474,6 +478,7 @@ layer {
   dropout_param {
     dropout_ratio: 0.5
   }
+  include {phase: TRAIN}
 }
 layer {
   name: "fc7_3"
@@ -501,12 +506,12 @@ layer {
   }
 }
 layer {
-  name: "fc8_${EXP}_3"
+  name: "fc8_voc12_3"
   type: "Convolution"
   bottom: "fc7_3"
-  top: "fc8_${EXP}_3"
+  top: "fc8_voc12_3"
   convolution_param {
-    num_output: ${NUM_LABELS}
+    num_output: 21
     kernel_size: 1
   }
 }
@@ -538,6 +543,7 @@ layer {
   dropout_param {
     dropout_ratio: 0.5
   }
+  include {phase: TRAIN}
 }
 layer {
   name: "fc7_4"
@@ -563,26 +569,27 @@ layer {
   dropout_param {
     dropout_ratio: 0.5
   }
+  include {phase: TRAIN}
 }
 layer {
-  name: "fc8_${EXP}_4"
+  name: "fc8_voc12_4"
   type: "Convolution"
   bottom: "fc7_4"
-  top: "fc8_${EXP}_4"
+  top: "fc8_voc12_4"
   convolution_param {
-    num_output: ${NUM_LABELS}
+    num_output: 21
     kernel_size: 1
   }
 }
 
 ### SUM the four branches
 layer {
-  bottom: "fc8_${EXP}_1"
-  bottom: "fc8_${EXP}_2"
-  bottom: "fc8_${EXP}_3"
-  bottom: "fc8_${EXP}_4"
-  top: "fc8_${EXP}"
-  name: "fc8_${EXP}"
+  bottom: "fc8_voc12_1"
+  bottom: "fc8_voc12_2"
+  bottom: "fc8_voc12_3"
+  bottom: "fc8_voc12_4"
+  top: "fc8_voc12"
+  name: "fc8_voc12"
   type: "Eltwise"
   eltwise_param {
     operation: SUM
@@ -592,11 +599,17 @@ layer {
 layer {
   name: "fc8_interp"
   type: "Interp"
-  bottom: "fc8_${EXP}"
+  bottom: "fc8_voc12"
   top: "fc8_interp"
   interp_param {
     zoom_factor: 8
   }
+}
+layer{
+  name: "softmax"
+  type: "Softmax"
+  bottom: "fc8_interp"
+  top: "output"
 }
 # layer {
 #   bottom: "fc8_interp"
@@ -607,21 +620,21 @@ layer {
 #     axis: 1
 #   }
 # }
-layer {
-  name: "fc8_mat"
-  type: "MatWrite"
+#layer {
+#  name: "fc8_mat"
+#  type: "MatWrite"
 #  bottom: "fc8_interp_argmax"
-  bottom: "fc8_interp"
-  include {
-    phase: TEST
-  }
-  mat_write_param {
-    prefix: "${FEATURE_DIR}/${TEST_SET}/fc8/"
-    source: "${EXP}/list/${TEST_SET}_id.txt"
-    strip: 0
-    period: 1
-  }
-}
+#  bottom: "fc8_interp"
+#  include {
+#    phase: TEST
+#  }
+#  mat_write_param {
+#    prefix: "${FEATURE_DIR}/${TEST_SET}/fc8/"
+#    source: "voc12/list/${TEST_SET}_id.txt"
+#    strip: 0
+#    period: 1
+#  }
+#}
 layer {
   name: "silence"
   type: "Silence"
