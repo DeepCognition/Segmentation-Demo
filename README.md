@@ -58,8 +58,8 @@ Before we proceed to segment the image we need to create a text file containing 
 
 3) Wait for segmentation to complete and observe the output generated at "/tmp/segment/"
 
-#### This can be easily integrated to the web UI to get an image from the user, post the image to backend and return the segmented image as output. Please check live demo on our [website](www.deepcognition.ai).
+#### This can be easily integrated to the web UI to get an image from the user, post the image to backend and return the segmented image as output. Please check live demo on our [website](http://deepcognition.ai/blog/image-segmentation/).
 
 ### Credits
 
-We would like to extend our sincere thanks to [liang-Chieh Chen](liangchiehchen.com) for making the deeplab_v2 and pretrained models publicly available to use. 
+We would like to extend our sincere thanks to [liang-Chieh Chen](http://liangchiehchen.com/) for making the deeplab_v2 and pretrained models publicly available to use. 
